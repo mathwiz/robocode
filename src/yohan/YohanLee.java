@@ -1,20 +1,25 @@
 package yohan;
 
+import robocode.AdvancedRobot;
 import robocode.HitRobotEvent;
 import robocode.ScannedRobotEvent;
 
 import java.awt.*;
 
-public class YohanLee extends SuperAdvancedRobot {
+public class YohanLee extends AdvancedRobot {
 
-    boolean peek; // Don't turn if there's a robot there
-    double moveAmount; // How much to move
     RobotPersonality r;
+
+    public YohanLee() {
+        this.r = new WallsPersonality(this);
+    }
 
     public void run() {
         setBodyColor(Color.WHITE);
-        r = new WallsPersonality(this);
-        r.run();
+        r.init();
+        while (true) {
+            r.execute();
+        }
     }
 
     /**

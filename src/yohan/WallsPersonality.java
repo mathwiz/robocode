@@ -8,49 +8,47 @@
 package yohan;
 
 
-import robocode.*;
+import robocode.HitRobotEvent;
+import robocode.Robot;
+import robocode.ScannedRobotEvent;
 
 
-public class WallsPersonality implements RobotPersonality {
-
-    private Robot r;
+public class WallsPersonality extends RobotPersonalityAdapter {
 
     boolean peek; // Don't turn if there's a robot there
     double moveAmount; // How much to move
 
     public WallsPersonality(Robot r) {
-        this.r = r;
+        super(r);
     }
 
-    /**
-     * run: Move around the walls
-     */
-    public void run() {
+    @Override
+    public void init() {
         // Initialize moveAmount to the maximum possible for this battlefield.
-        moveAmount = Math.max(r.getBattleFieldWidth(), r.getBattleFieldHeight());
+        moveAmount = Math.max(getRobot().getBattleFieldWidth(), getRobot().getBattleFieldHeight());
         // Initialize peek to false
         peek = false;
 
         // turnLeft to face a wall.
         // getHeading() % 90 means the remainder of
         // getHeading() divided by 90.
-        r.turnLeft(r.getHeading() % 90);
-        r.ahead(moveAmount);
+        getRobot().turnLeft(getRobot().getHeading() % 90);
+        getRobot().ahead(moveAmount);
         // Turn the gun to turn right 90 degrees.
         peek = true;
-        r.turnGunRight(90);
-        r.turnRight(90);
+        getRobot().turnGunRight(90);
+        getRobot().turnRight(90);
+    }
 
-        while (true) {
-            // Look before we turn when ahead() completes.
-            peek = true;
-            // Move up the wall
-            r.ahead(moveAmount);
-            // Don't look now
-            peek = false;
-            // Turn to the next wall
-            r.turnRight(90);
-        }
+    @Override
+    public void execute() {
+        peek = true;
+        // Move up the wall
+        getRobot().ahead(moveAmount);
+        // Don't look now
+        peek = false;
+        // Turn to the next wall
+        getRobot().turnRight(90);
     }
 
     /**
@@ -59,10 +57,10 @@ public class WallsPersonality implements RobotPersonality {
     public void onHitRobot(HitRobotEvent e) {
         // If he's in front of us, set back up a bit.
         if (e.getBearing() > -90 && e.getBearing() < 90) {
-            r.back(100);
+            getRobot().back(100);
         } // else he's in back of us, so set ahead a bit.
         else {
-            r.ahead(100);
+            getRobot().ahead(100);
         }
     }
 
@@ -70,58 +68,13 @@ public class WallsPersonality implements RobotPersonality {
      * onScannedRobot:  Fire!
      */
     public void onScannedRobot(ScannedRobotEvent e) {
-        r.fire(2);
+        getRobot().fire(2);
         // Note that scan is called automatically when the robot is moving.
         // By calling it manually here, we make sure we generate another scan event if there's a robot on the next
         // wall, so that we do not start moving up it until it's gone.
         if (peek) {
-            r.scan();
+            getRobot().scan();
         }
     }
 
-    @Override
-    public void onStatus(StatusEvent event) {
-        r.onStatus(event);
-    }
-
-    @Override
-    public void onBulletHit(BulletHitEvent event) {
-        r.onBulletHit(event);
-    }
-
-    @Override
-    public void onBulletHitBullet(BulletHitBulletEvent event) {
-        r.onBulletHitBullet(event);
-    }
-
-    @Override
-    public void onBulletMissed(BulletMissedEvent event) {
-        r.onBulletMissed(event
-        );
-    }
-
-    @Override
-    public void onDeath(DeathEvent event) {
-        r.onDeath(event);
-    }
-
-    @Override
-    public void onHitByBullet(HitByBulletEvent event) {
-        r.onHitByBullet(event);
-    }
-
-    @Override
-    public void onHitWall(HitWallEvent event) {
-        r.onHitWall(event);
-    }
-
-    @Override
-    public void onRobotDeath(RobotDeathEvent event) {
-        r.onRobotDeath(event);
-    }
-
-    @Override
-    public void onWin(WinEvent event) {
-        r.onWin(event);
-    }
 }
