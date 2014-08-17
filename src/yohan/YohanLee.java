@@ -1,48 +1,32 @@
 package yohan;
 
-import robocode.*;
-import robocode.Robot;
+import robocode.HitByBulletEvent;
+import robocode.HitWallEvent;
+import robocode.ScannedRobotEvent;
 
 import java.awt.*;
 
-public class YohanLee extends AdvancedRobot {
+public class YohanLee extends SuperAdvancedRobot {
     private static int scans;
-    private MoveStrategy moveStrategy;
-
-    public YohanLee() {
-        final Robot me = this;
-        moveStrategy = new MoveStrategy() {
-            @Override
-            public void move() {
-            }
-        };
-    }
-
-    public MoveStrategy getMoveStrategy() {
-        return moveStrategy;
-    }
-
-    public void setMoveStrategy(MoveStrategy moveStrategy) {
-        this.moveStrategy = moveStrategy;
-    }
 
     /**
      * run: YohanRobot's default behavior
      */
     public void run() {
         // Initialization of the robot should be put here
-        setColors(Color.GREEN, Color.DARK_GRAY, Color.GRAY); // body,gun,radar
+        setColors(Color.BLACK, Color.ORANGE, Color.GRAY); // body,gun,radar
+        setMoveStrategy(new MoveStrategy() {
+            @Override
+            public void move() {
+                setTurnRight(10000);
+                setMaxVelocity(5);
+                ahead(10000);
+            }
+        });
 
         // Robot main loop
         while (true) {
-            // Tell the game that when we take move,
-            // we'll also want to turn right... a lot.
-            setTurnRight(10000);
-            // Limit our speed to 5
-            setMaxVelocity(5);
-            // Start moving (and turning)
-            ahead(10000);
-            // Repeat.
+            getMoveStrategy().move();
         }
     }
 
