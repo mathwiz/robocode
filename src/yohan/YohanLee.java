@@ -13,6 +13,8 @@ public class YohanLee extends AdvancedRobot {
 
     public void run() {
         setBodyColor(Color.WHITE);
+        setGunColor(Color.RED);
+        setRadarColor(Color.WHITE);
         setPersonality();
 
         while (true) {
