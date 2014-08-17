@@ -31,7 +31,7 @@ public class YohanLee extends AdvancedRobot {
      */
     public void run() {
         // Initialization of the robot should be put here
-        setColors(Color.lightGray, Color.darkGray, Color.black); // body,gun,radar
+        setColors(Color.GREEN, Color.DARK_GRAY, Color.GRAY); // body,gun,radar
 
         // Robot main loop
         while (true) {
