@@ -5,31 +5,29 @@ import robocode.HitRobotEvent;
 import robocode.ScannedRobotEvent;
 
 import java.awt.*;
+import java.util.Date;
 
 public class YohanLee extends AdvancedRobot {
-    private int turn;
 
     RobotPersonality r;
 
-    public YohanLee() {
-        this.r = new WallsPersonality(this);
-    }
-
     public void run() {
         setBodyColor(Color.WHITE);
+
+        if (new Date().getTime() % 2 == 0) {
+            r = new RamPersonality(this);
+        } else {
+            r = new WallsPersonality(this);
+        }
         r.init();
         while (true) {
-            System.out.println(turn++);
-            changePersonality();
             r.execute();
         }
     }
 
     private void changePersonality() {
-        if (turn > 25) {
-            r = new RamPersonality(this);
-            r.init();
-        }
+        r = new RamPersonality(this);
+        r.init();
     }
 
     /**
