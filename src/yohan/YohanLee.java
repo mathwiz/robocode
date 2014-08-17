@@ -7,6 +7,7 @@ import robocode.ScannedRobotEvent;
 import java.awt.*;
 
 public class YohanLee extends AdvancedRobot {
+    private int turn;
 
     RobotPersonality r;
 
@@ -18,7 +19,16 @@ public class YohanLee extends AdvancedRobot {
         setBodyColor(Color.WHITE);
         r.init();
         while (true) {
+            System.out.println(turn++);
+            changePersonality();
             r.execute();
+        }
+    }
+
+    private void changePersonality() {
+        if (turn > 25) {
+            r = new RamPersonality(this);
+            r.init();
         }
     }
 
