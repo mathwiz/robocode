@@ -1,8 +1,6 @@
 package yohan;
 
-import robocode.AdvancedRobot;
-import robocode.HitRobotEvent;
-import robocode.ScannedRobotEvent;
+import robocode.*;
 
 import java.awt.*;
 import java.util.Date;
@@ -13,8 +11,8 @@ public class YohanLee extends AdvancedRobot {
 
     public void run() {
         setBodyColor(Color.WHITE);
-        setGunColor(Color.RED);
-        setRadarColor(Color.WHITE);
+        setGunColor(Color.YELLOW);
+        setRadarColor(Color.RED);
         setPersonality();
 
         while (true) {
@@ -31,11 +29,58 @@ public class YohanLee extends AdvancedRobot {
         r.init();
     }
 
+    @Override
     public void onHitRobot(HitRobotEvent e) {
         r.onHitRobot(e);
     }
 
+    @Override
+    public void onHitWall(HitWallEvent event) {
+        r.onHitWall(event);
+    }
+
+    @Override
     public void onScannedRobot(ScannedRobotEvent e) {
         r.onScannedRobot(e);
+    }
+
+    @Override
+    public void onRobotDeath(RobotDeathEvent event) {
+        r.onRobotDeath(event);
+    }
+
+    @Override
+    public void onWin(WinEvent event) {
+        r.onWin(event);
+    }
+
+    @Override
+    public void onStatus(StatusEvent event) {
+        r.onStatus(event);
+    }
+
+    @Override
+    public void onBulletHit(BulletHitEvent event) {
+        r.onBulletHit(event);
+    }
+
+    @Override
+    public void onBulletHitBullet(BulletHitBulletEvent event) {
+        r.onBulletHitBullet(event);
+    }
+
+    @Override
+    public void onBulletMissed(BulletMissedEvent event) {
+        r.onBulletMissed(event);
+    }
+
+    @Override
+    public void onDeath(DeathEvent event) {
+        r.onDeath(event);
+    }
+
+    @Override
+    public void onHitByBullet(HitByBulletEvent event) {
+        r.onHitByBullet(event);
     }
 }
