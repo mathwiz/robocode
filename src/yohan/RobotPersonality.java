@@ -7,7 +7,7 @@ import robocode.robotinterfaces.IBasicEvents;
  */
 public interface RobotPersonality extends IBasicEvents {
 
-    public abstract void init();
+    void init();
 
-    public abstract void execute();
+    void execute();
 }
