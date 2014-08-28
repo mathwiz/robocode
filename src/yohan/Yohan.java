@@ -3,32 +3,27 @@ package yohan;
 import robocode.*;
 
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 public class Yohan extends AdvancedRobot {
 
     RobotPersonality r;
+    List<RobotPersonality> personalities = new ArrayList<>();
 
     public void run() {
         setBodyColor(Color.BLACK);
         setGunColor(Color.BLACK);
         setRadarColor(Color.BLACK);
-        setPersonality();
+        personalities.add(new RamPersonality(this));
+        personalities.add(new WallsPersonality(this));
 
         while (true) {
+            r = getOthers() < 30 ? personalities.get(0) : personalities.get(1);
             r.execute();
         }
     }
-
-    private void setPersonality() {
-        if (new Date().getTime() % 2 == 0) {
-            r = new RamPersonality(this);
-        } else {
-            r = new WallsPersonality(this);
-        }
-        r.init();
-    }
-
 
     @Override
     public void onStatus(StatusEvent statusEvent) {

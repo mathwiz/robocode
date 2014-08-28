@@ -13,6 +13,7 @@ public class WallsPersonality extends RobotPersonalityAdapter {
 
     public WallsPersonality(Robot r) {
         super(r);
+        init();
     }
 
     @Override

@@ -1,24 +1,35 @@
-package yohan;
+package Spring.Team3;
 
+import robocode.AdvancedRobot;
 import robocode.HitRobotEvent;
 import robocode.Robot;
 import robocode.ScannedRobotEvent;
+import yohan.RamPersonality;
+import yohan.WallsPersonality;
 
-public class RamPersonality extends RobotPersonalityAdapter {
+import java.awt.*;
+
+/**
+ * Created by e651137 on 8/28/14.
+ */
+public class YohanLee extends AdvancedRobot {
     int turnDirection = 1; // Clockwise or counterclockwise
 
-    public RamPersonality(Robot r) {
-        super(r);
-        init();
+    private Robot getRobot() {
+        return this;
     }
 
-    @Override
-    public void init() {
+    public void run() {
+        setBodyColor(Color.WHITE);
+        setGunColor(Color.WHITE);
+        setRadarColor(Color.WHITE);
 
+        while (true) {
+            getRobot().turnRight(5 * turnDirection);
+        }
     }
 
     public void execute() {
-        getRobot().turnRight(5 * turnDirection);
     }
 
     public void onScannedRobot(ScannedRobotEvent e) {
