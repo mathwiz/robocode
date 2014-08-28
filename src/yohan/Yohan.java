@@ -18,9 +18,9 @@ public class Yohan extends AdvancedRobot {
         setRadarColor(Color.BLACK);
         personalities.add(new RamPersonality(this));
         personalities.add(new WallsPersonality(this));
+        r = personalities.get(1);
 
         while (true) {
-            r = getOthers() < 30 ? personalities.get(0) : personalities.get(1);
             r.execute();
         }
     }

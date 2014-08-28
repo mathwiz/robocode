@@ -4,8 +4,6 @@ import robocode.AdvancedRobot;
 import robocode.HitRobotEvent;
 import robocode.Robot;
 import robocode.ScannedRobotEvent;
-import yohan.RamPersonality;
-import yohan.WallsPersonality;
 
 import java.awt.*;
 
