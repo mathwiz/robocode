@@ -60,4 +60,14 @@ public abstract class PersonalityAdapter implements Personality {
     @Override
     public void onWin(WinEvent event) {
     }
+
+    @Override
+    public void onRoundEnded(RoundEndedEvent roundEndedEvent) {
+
+    }
+
+    @Override
+    public void onBattleEnded(BattleEndedEvent battleEndedEvent) {
+
+    }
 }

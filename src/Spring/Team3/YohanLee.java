@@ -1,9 +1,11 @@
 package Spring.Team3;
 
 import robocode.*;
-import robocode.Robot;
+import yohan.*;
 
-import java.awt.*;
+import java.awt.Color;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by e651137 on 8/28/14.
@@ -11,73 +13,84 @@ import java.awt.*;
 public class YohanLee extends AdvancedRobot {
     Personality p;
 
-    private Personality getRobot() {
+    List<Personality> personalities = new ArrayList<>();
+
+    private Personality getPersonality() {
         return p;
     }
 
     public void run() {
-        setBodyColor(Color.CYAN);
+        setBodyColor(Color.WHITE);
         setGunColor(Color.WHITE);
         setRadarColor(Color.WHITE);
-        p = new WallsPersonality(this);
+        personalities.add(new WallsPersonality(this));
+        personalities.add(new RamPersonality(this));
+        p = personalities.get(0);
 
         while (true) {
-            getRobot().execute();
+            getPersonality().execute();
+        }
+    }
+
+    private void changePersonality() {
+        if (getOthers() == 1) {
+            p = personalities.get(1);
         }
     }
 
     @Override
     public void onStatus(StatusEvent statusEvent) {
-        getRobot().onStatus(statusEvent);
+        getPersonality().onStatus(statusEvent);
     }
 
     @Override
     public void onBulletHit(BulletHitEvent bulletHitEvent) {
-        getRobot().onBulletHit(bulletHitEvent);
+        getPersonality().onBulletHit(bulletHitEvent);
     }
 
     @Override
     public void onBulletHitBullet(BulletHitBulletEvent bulletHitBulletEvent) {
-        getRobot().onBulletHitBullet(bulletHitBulletEvent);
+        getPersonality().onBulletHitBullet(bulletHitBulletEvent);
     }
 
     @Override
     public void onBulletMissed(BulletMissedEvent bulletMissedEvent) {
-        getRobot().onBulletMissed(bulletMissedEvent);
+        getPersonality().onBulletMissed(bulletMissedEvent);
     }
 
     @Override
     public void onDeath(DeathEvent deathEvent) {
-        getRobot().onDeath(deathEvent);
+        getPersonality().onDeath(deathEvent);
     }
 
     @Override
     public void onHitByBullet(HitByBulletEvent hitByBulletEvent) {
-        getRobot().onHitByBullet(hitByBulletEvent);
+        getPersonality().onHitByBullet(hitByBulletEvent);
     }
 
     @Override
     public void onHitRobot(HitRobotEvent e) {
-        getRobot().onHitRobot(e);
+        getPersonality().onHitRobot(e);
     }
 
     @Override
     public void onHitWall(HitWallEvent hitWallEvent) {
-        getRobot().onHitWall(hitWallEvent);
+        getPersonality().onHitWall(hitWallEvent);
     }
 
     @Override
     public void onScannedRobot(ScannedRobotEvent e) {
-        getRobot().onScannedRobot(e);
+        getPersonality().onScannedRobot(e);
     }
 
     @Override
     public void onRobotDeath(RobotDeathEvent robotDeathEvent) {
-        getRobot().onRobotDeath(robotDeathEvent);
+        getPersonality().onRobotDeath(robotDeathEvent);
+        changePersonality();
     }
 
     @Override
     public void onWin(WinEvent winEvent) {
-        getRobot().onWin(winEvent);
+        getPersonality().onWin(winEvent);
     }
 }

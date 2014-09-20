@@ -3,9 +3,10 @@ package Spring.Team3;
 import robocode.HitRobotEvent;
 import robocode.Robot;
 import robocode.ScannedRobotEvent;
-import yohan.RobotPersonalityAdapter;
 
-public class RamPersonality extends RobotPersonalityAdapter {
+import java.awt.*;
+
+public class RamPersonality extends PersonalityAdapter {
     int turnDirection = 1; // Clockwise or counterclockwise
 
     public RamPersonality(Robot r) {
@@ -19,9 +20,11 @@ public class RamPersonality extends RobotPersonalityAdapter {
     }
 
     public void execute() {
+        getRobot().setBodyColor(Color.RED);
         getRobot().turnRight(5 * turnDirection);
     }
 
+    @Override
     public void onScannedRobot(ScannedRobotEvent e) {
 
         if (e.getBearing() >= 0) {
@@ -35,6 +38,7 @@ public class RamPersonality extends RobotPersonalityAdapter {
         getRobot().scan();
     }
 
+    @Override
     public void onHitRobot(HitRobotEvent e) {
         if (e.getBearing() >= 0) {
             turnDirection = 1;

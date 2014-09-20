@@ -6,6 +6,8 @@ import robocode.Robot;
 import robocode.ScannedRobotEvent;
 import yohan.RobotPersonalityAdapter;
 
+import java.awt.*;
+
 
 public class WallsPersonality extends PersonalityAdapter {
 
@@ -32,6 +34,7 @@ public class WallsPersonality extends PersonalityAdapter {
 
     @Override
     public void execute() {
+        getRobot().setBodyColor(Color.BLUE);
         peek = true;
         getRobot().ahead(moveAmount);
         peek = false;
