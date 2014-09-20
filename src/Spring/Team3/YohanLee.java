@@ -1,95 +1,94 @@
 package Spring.Team3;
 
 import robocode.*;
-import robocode.robotinterfaces.IBasicEvents;
-import robocode.robotinterfaces.IBasicRobot;
-import robocode.robotinterfaces.peer.IBasicRobotPeer;
-import robocode.robotinterfaces.peer.IStandardRobotPeer;
 
-import java.io.PrintStream;
-
-/**
- * Created by e651137 on 8/28/14.
- */
-public class YohanLee implements IBasicEvents, IBasicRobot, Runnable {
-
-    final ThreadLocal<PrintStream> out = new ThreadLocal<>();
-    IStandardRobotPeer peer;
-
-    public Runnable getRobotRunnable() {
-        return this;
-    }
-
-    public IBasicEvents getBasicEventListener() {
-        return this;
-    }
-
-    public void setPeer(IBasicRobotPeer iRobotPeer) {
-        peer = (IStandardRobotPeer) iRobotPeer;
-    }
-
-    public void setOut(PrintStream printStream) {
-        out.set(printStream);
-    }
+public class YohanLee extends AdvancedRobot {
+    MoveStrategy ms;
 
     private void log(String s, Object... args) {
-        out.get().println(String.format(s, args));
+        out.println(String.format(s, args));
     }
 
     public void run() {
+        ms = new MoveStrategy() {
+            @Override
+            public double size() {
+                return Math.min(getBattleFieldHeight(), getBattleFieldWidth());
+            }
+        };
+
         while (true) {
-            log("New Loop. energy %.2f, heading %.2f", peer.getEnergy(), peer.getGunHeading());
-            peer.move(100); // Move ahead 100
-            peer.turnGun(Math.PI * 2); // Spin gun around
-            peer.move(-100); // Move back 100
-            peer.turnGun(Math.PI * 2); // Spin gun around
+            log("New Loop. heading %.2f, gun heading %.2f", getHeading(), getGunHeading());
+            ahead(ms.size());
+            setTurnRight(180);
+            ahead(-1 * ms.size());
+            setTurnGunLeft(180);
         }
     }
 
     @Override
-    public void onStatus(StatusEvent statusEvent) {
+    public void onStatus(StatusEvent e) {
     }
 
     @Override
-    public void onBulletHit(BulletHitEvent bulletHitEvent) {
+    public void onBulletHit(BulletHitEvent e) {
+        log("bullet hit %s", e.getName());
     }
 
     @Override
-    public void onBulletHitBullet(BulletHitBulletEvent bulletHitBulletEvent) {
+    public void onBulletHitBullet(BulletHitBulletEvent e) {
+        log("bullet hit bullet. wtf?");
     }
 
     @Override
-    public void onBulletMissed(BulletMissedEvent bulletMissedEvent) {
+    public void onBulletMissed(BulletMissedEvent e) {
+        log("bullet missed from %s", e.getBullet().getName());
     }
 
     @Override
     public void onDeath(DeathEvent deathEvent) {
+        log("Next time!");
     }
 
     @Override
     public void onHitByBullet(HitByBulletEvent e) {
-        peer.turnBody(Math.PI / 2 + e.getBearingRadians());
+        log("bullet hit from %s", e.getName());
+        turnLeft(e.getBearing());
     }
 
     @Override
     public void onHitRobot(HitRobotEvent e) {
+        log("hit %s", e.getName());
+        if (e.isMyFault()) {
+            turnRight(e.getBearing());
+        }
     }
 
     @Override
-    public void onHitWall(HitWallEvent hitWallEvent) {
+    public void onHitWall(HitWallEvent e) {
+        log("hit wall at (%.2f, %.2f)", getX(), getY());
     }
 
     @Override
     public void onScannedRobot(ScannedRobotEvent e) {
-        peer.setFire(1);
+        double bearing = e.getBearing();
+        log("scanned %.2f", bearing);
+        setTurnGunRight(bearing);
+        setFire(1);
     }
 
     @Override
     public void onRobotDeath(RobotDeathEvent robotDeathEvent) {
-        log("%s died. %d remaining", robotDeathEvent.getName(), peer.getOthers());
+        log("%s died. %d remaining", robotDeathEvent.getName(), getOthers());
     }
 
     @Override
     public void onWin(WinEvent winEvent) {
+        log("That's RIGHT!");
     }
+
+    private interface MoveStrategy {
+        double size();
+    }
+
 }
