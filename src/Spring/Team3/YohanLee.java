@@ -4,10 +4,16 @@ import robocode.*;
 import robocode.util.Utils;
 
 public class YohanLee extends AdvancedRobot {
+    private String trackName;
+
     private int turns;
+
     private int turnDirection = 1;
+
     private int escapeDistance = 50;
+
     private int attackDistance = 40;
+
     private int turnSize = 90;
 
     private void log(String s, Object... args) {
@@ -17,6 +23,7 @@ public class YohanLee extends AdvancedRobot {
     private int getTurnDirection() {
         return turnDirection;
     }
+
     private double getTurnSize() {
         return turnSize;
     }
@@ -29,8 +36,18 @@ public class YohanLee extends AdvancedRobot {
         return Math.min(getBattleFieldHeight(), getBattleFieldWidth());
     }
 
-    private int calculateFirePower() {
-        return 2;
+    private double calculateFirePower() {
+        double e = getEnergy();
+        if (e > 16) {
+            return 3;
+        } else if (e > 10) {
+            return 2;
+        } else if (e > 4) {
+            return 1;
+        } else if (e > 2) {
+            return .5;
+        }
+        return .1;
     }
 
     private boolean isDuel() {
@@ -48,7 +65,6 @@ public class YohanLee extends AdvancedRobot {
     public void run() {
         //setAdjustGunForRobotTurn(true);
         while (true) {
-            log("New Loop. heading %.2f at (%.2f, %.2f)", getHeading(), getX(), getY());
             turnRight(5 * getTurnDirection());
         }
     }
@@ -66,17 +82,17 @@ public class YohanLee extends AdvancedRobot {
     @Override
     public void onHitByBullet(HitByBulletEvent e) {
         log("bullet hit from %s", e.getName());
-//        turnRight(Utils.normalRelativeAngleDegrees(90 - (getHeading() - e.getHeading())));
-//
-//        ahead(escapeDistance);
-//        escapeDistance *= -1; //flip the direction
-//        scan();
+        //        turnRight(Utils.normalRelativeAngleDegrees(90 - (getHeading() - e.getHeading())));
+        //
+        //        ahead(escapeDistance);
+        //        escapeDistance *= -1; //flip the direction
+        //        scan();
     }
 
     @Override
     public void onHitWall(HitWallEvent e) {
         log("hit wall at (%.2f, %.2f)", getX(), getY());
-//        turnRight(Utils.normalRelativeAngleDegrees(90 - getHeading()));
+        //        turnRight(Utils.normalRelativeAngleDegrees(90 - getHeading()));
     }
 
     @Override
@@ -111,8 +127,8 @@ public class YohanLee extends AdvancedRobot {
     @Override
     public void onBulletHitBullet(BulletHitBulletEvent e) {
         log("bullet hit bullet. wtf?");
-//        turnRight(getTurnDirection() * getTurnSize());
-//        ahead(escapeDistance);
+        //        turnRight(getTurnDirection() * getTurnSize());
+        //        ahead(escapeDistance);
     }
 
     @Override
