@@ -38,7 +38,7 @@ public class YohanLee implements IBasicEvents, IBasicRobot, Runnable {
 
     public void run() {
         while (true) {
-            log("New Loop. energy %s, pointed %s", peer.getEnergy(), peer.getGunHeading());
+            log("New Loop. energy %.2f, heading %.2f", peer.getEnergy(), peer.getGunHeading());
             peer.move(100); // Move ahead 100
             peer.turnGun(Math.PI * 2); // Spin gun around
             peer.move(-100); // Move back 100
@@ -86,7 +86,7 @@ public class YohanLee implements IBasicEvents, IBasicRobot, Runnable {
 
     @Override
     public void onRobotDeath(RobotDeathEvent robotDeathEvent) {
-        log("%s died. % remaining", robotDeathEvent.getName(), peer.getOthers());
+        log("%s died. %d remaining", robotDeathEvent.getName(), peer.getOthers());
     }
 
     @Override
