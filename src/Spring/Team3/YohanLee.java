@@ -1,96 +1,95 @@
 package Spring.Team3;
 
 import robocode.*;
-import yohan.*;
+import robocode.robotinterfaces.IBasicEvents;
+import robocode.robotinterfaces.IBasicRobot;
+import robocode.robotinterfaces.peer.IBasicRobotPeer;
+import robocode.robotinterfaces.peer.IStandardRobotPeer;
 
-import java.awt.Color;
-import java.util.ArrayList;
-import java.util.List;
+import java.io.PrintStream;
 
 /**
  * Created by e651137 on 8/28/14.
  */
-public class YohanLee extends AdvancedRobot {
-    Personality p;
+public class YohanLee implements IBasicEvents, IBasicRobot, Runnable {
 
-    List<Personality> personalities = new ArrayList<>();
+    final ThreadLocal<PrintStream> out = new ThreadLocal<>();
+    IStandardRobotPeer peer;
 
-    private Personality getPersonality() {
-        return p;
+    public Runnable getRobotRunnable() {
+        return this;
+    }
+
+    public IBasicEvents getBasicEventListener() {
+        return this;
+    }
+
+    public void setPeer(IBasicRobotPeer iRobotPeer) {
+        peer = (IStandardRobotPeer) iRobotPeer;
+    }
+
+    public void setOut(PrintStream printStream) {
+        out.set(printStream);
+    }
+
+    private void log(String s, Object... args) {
+        out.get().println(String.format(s, args));
     }
 
     public void run() {
-        setBodyColor(Color.WHITE);
-        setGunColor(Color.WHITE);
-        setRadarColor(Color.WHITE);
-        personalities.add(new WallsPersonality(this));
-        personalities.add(new RamPersonality(this));
-        p = personalities.get(0);
-
         while (true) {
-            getPersonality().execute();
-        }
-    }
-
-    private void changePersonality() {
-        if (getOthers() == 1) {
-            p = personalities.get(1);
+            log("New Loop. energy %s, pointed %s", peer.getEnergy(), peer.getGunHeading());
+            peer.move(100); // Move ahead 100
+            peer.turnGun(Math.PI * 2); // Spin gun around
+            peer.move(-100); // Move back 100
+            peer.turnGun(Math.PI * 2); // Spin gun around
         }
     }
 
     @Override
     public void onStatus(StatusEvent statusEvent) {
-        getPersonality().onStatus(statusEvent);
     }
 
     @Override
     public void onBulletHit(BulletHitEvent bulletHitEvent) {
-        getPersonality().onBulletHit(bulletHitEvent);
     }
 
     @Override
     public void onBulletHitBullet(BulletHitBulletEvent bulletHitBulletEvent) {
-        getPersonality().onBulletHitBullet(bulletHitBulletEvent);
     }
 
     @Override
     public void onBulletMissed(BulletMissedEvent bulletMissedEvent) {
-        getPersonality().onBulletMissed(bulletMissedEvent);
     }
 
     @Override
     public void onDeath(DeathEvent deathEvent) {
-        getPersonality().onDeath(deathEvent);
     }
 
     @Override
-    public void onHitByBullet(HitByBulletEvent hitByBulletEvent) {
-        getPersonality().onHitByBullet(hitByBulletEvent);
+    public void onHitByBullet(HitByBulletEvent e) {
+        peer.turnBody(Math.PI / 2 + e.getBearingRadians());
     }
 
     @Override
     public void onHitRobot(HitRobotEvent e) {
-        getPersonality().onHitRobot(e);
     }
 
     @Override
     public void onHitWall(HitWallEvent hitWallEvent) {
-        getPersonality().onHitWall(hitWallEvent);
     }
 
     @Override
     public void onScannedRobot(ScannedRobotEvent e) {
-        getPersonality().onScannedRobot(e);
+        peer.setFire(1);
     }
 
     @Override
     public void onRobotDeath(RobotDeathEvent robotDeathEvent) {
-        getPersonality().onRobotDeath(robotDeathEvent);
-        changePersonality();
+        log("%s died. % remaining", robotDeathEvent.getName(), peer.getOthers());
     }
 
     @Override
     public void onWin(WinEvent winEvent) {
-        getPersonality().onWin(winEvent);
     }
 }
