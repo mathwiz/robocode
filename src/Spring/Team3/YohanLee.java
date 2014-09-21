@@ -173,10 +173,10 @@ public class YohanLee extends AdvancedRobot {
             if (e.getDistance() > 150) {
                 gunTurnAmt = normalRelativeAngleDegrees(e.getBearing() + (getHeading() - getRadarHeading()));
 
-                turnGunRight(gunTurnAmt); // Try changing these to setTurnGunRight,
-                turnRight(e.getBearing()); // and see how much Tracker improves...
+                setTurnGunRight(gunTurnAmt); // Try changing these to setTurnGunRight,
+                setTurnRight(e.getBearing()); // and see how much Tracker improves...
                 // (you'll have to make Tracker an AdvancedRobot)
-                ahead(e.getDistance() - 140);
+                setAhead(e.getDistance() - 140);
                 return;
             }
 
