@@ -28,6 +28,8 @@ public class YohanLee extends AdvancedRobot {
 
     private int count;
 
+    private int missCount;
+
     private double gunTurnAmt = 10;
 
     boolean movingForward;
@@ -41,7 +43,7 @@ public class YohanLee extends AdvancedRobot {
         if (distance < CLOSE_DISTANCE) {
             if (e > 16) {
                 return 3;
-            } else if (e > 10) {
+            } else if (e > 8) {
                 return 2;
             } else if (e > 4) {
                 return 1;
@@ -88,7 +90,6 @@ public class YohanLee extends AdvancedRobot {
 
                 if (e.getDistance() > FAR_DISTANCE) {
                     gunTurnAmt = normalRelativeAngleDegrees(e.getBearing() + (getHeading() - getRadarHeading()));
-
                     setTurnGunRight(gunTurnAmt);
                     setTurnRight(e.getBearing());
                     setAhead(e.getDistance() - (FAR_DISTANCE - 10));
@@ -107,6 +108,24 @@ public class YohanLee extends AdvancedRobot {
                     }
                 }
                 scan();
+            }
+
+            @Override
+            public void onHitRobot(HitRobotEvent e) {
+                double bearing = e.getBearing();
+                log("hit %s at bearing %.2f", e.getName(), bearing);
+                // Only print if he's not already our target.
+                if (trackName != null && !trackName.equals(e.getName())) {
+                    out.println("Tracking " + e.getName() + " due to collision");
+                }
+                trackName = e.getName();
+                // Back up a bit.
+                // Note:  We won't get scan events while we're doing this!
+                // An AdvancedRobot might use setBack(); execute();
+                gunTurnAmt = normalRelativeAngleDegrees(e.getBearing() + (getHeading() - getRadarHeading()));
+                fire(3);
+                setTurnGunRight(gunTurnAmt);
+                setBack(ESCAPE_DISTANCE);
             }
         };
 
@@ -128,6 +147,18 @@ public class YohanLee extends AdvancedRobot {
             public void onScannedRobot(ScannedRobotEvent e) {
                 fire(calculateFirePower(e.getDistance()));
             }
+
+            @Override
+            public void onHitRobot(HitRobotEvent e) {
+                fire(3);
+                if (movingForward) {
+                    setBack(BIG_MOVE);
+                    movingForward = false;
+                } else {
+                    setAhead(BIG_MOVE);
+                    movingForward = true;
+                }
+            }
         };
 
         strategy = avoidStrategy;
@@ -141,21 +172,8 @@ public class YohanLee extends AdvancedRobot {
 
     @Override
     public void onHitRobot(HitRobotEvent e) {
-        double bearing = e.getBearing();
-        log("hit %s at bearing %.2f", e.getName(), bearing);
-        // Only print if he's not already our target.
-        if (trackName != null && !trackName.equals(e.getName())) {
-            out.println("Tracking " + e.getName() + " due to collision");
-        }
-        // Set the target
-        trackName = e.getName();
-        // Back up a bit.
-        // Note:  We won't get scan events while we're doing this!
-        // An AdvancedRobot might use setBack(); execute();
-        gunTurnAmt = normalRelativeAngleDegrees(e.getBearing() + (getHeading() - getRadarHeading()));
-        turnGunRight(gunTurnAmt);
-        fire(3);
-        back(ESCAPE_DISTANCE);
+        log("hit robot %s", e.getName());
+        strategy.onHitRobot(e);
     }
 
     @Override
@@ -169,7 +187,6 @@ public class YohanLee extends AdvancedRobot {
 
     @Override
     public void onHitWall(HitWallEvent e) {
-        log("hit wall at (%.2f, %.2f)", getX(), getY());
         setAhead(-1 * ESCAPE_DISTANCE);
     }
 
@@ -197,12 +214,14 @@ public class YohanLee extends AdvancedRobot {
 
     @Override
     public void onBulletHit(BulletHitEvent e) {
-        log("bullet hit %s", e.getName());
+        log("bullet hit %s", e.getBullet().getVictim());
+        missCount = 0;
     }
 
     @Override
     public void onBulletMissed(BulletMissedEvent e) {
-        log("bullet missed from %s", e.getBullet().getName());
+        missCount++;
+        log("bullet missed. %d misses", missCount);
     }
 
     @Override
@@ -225,6 +244,8 @@ public class YohanLee extends AdvancedRobot {
     private interface Strategy {
         void move();
 
-        void onScannedRobot(ScannedRobotEvent event);
+        void onScannedRobot(ScannedRobotEvent e);
+
+        void onHitRobot(HitRobotEvent e);
     }
 }
