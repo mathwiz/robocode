@@ -140,8 +140,8 @@ public class YohanLee extends AdvancedRobot {
             public void move() {
                 AdvancedRobot robot = YohanLee.this;
                 setAhead(BIG_MOVE);
-                setTurnGunRight(360);
                 movingForward = true;
+                setTurnGunRight(360);
                 setTurnRight(90);
                 waitFor(new TurnCompleteCondition(robot));
             }
