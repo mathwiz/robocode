@@ -16,8 +16,6 @@ public class YohanLee extends AdvancedRobot {
 
     private MoveStrategy trackStrategy;
 
-    private MoveStrategy trackScanStrategy;
-
     private MoveStrategy avoidStrategy;
 
     private MoveStrategy moveStrategy;
@@ -27,6 +25,8 @@ public class YohanLee extends AdvancedRobot {
     private int count;
 
     private double gunTurnAmt = 10;
+
+    boolean movingForward;
 
     private int turnDirection = 1;
 
@@ -107,17 +107,37 @@ public class YohanLee extends AdvancedRobot {
         avoidStrategy = new MoveStrategy() {
             @Override
             public void move() {
-                setTurnRight(10000);
-                setMaxVelocity(5);
-                ahead(10000);
+                AdvancedRobot robot = YohanLee.this;
+                // Tell the game we will want to move ahead 40000 -- some large number
+                setAhead(40000);
+                movingForward = true;
+                // Tell the game we will want to turn right 90
+                setTurnRight(90);
+                // At this point, we have indicated to the game that *when we do something*,
+                // we will want to move ahead and turn right.  That's what "set" means.
+                // It is important to realize we have not done anything yet!
+                // In order to actually move, we'll want to call a method that
+                // takes real time, such as waitFor.
+                // waitFor actually starts the action -- we start moving and turning.
+                // It will not return until we have finished turning.
+                waitFor(new TurnCompleteCondition(robot));
+                // Note:  We are still moving ahead now, but the turn is complete.
+                // Now we'll turn the other way...
+                setTurnLeft(180);
+                // ... and wait for the turn to finish ...
+                waitFor(new TurnCompleteCondition(robot));
+                // ... then the other way ...
+                setTurnRight(180);
+                // .. and wait for that turn to finish.
+                waitFor(new TurnCompleteCondition(robot));
+                // then back to the top to do it all again
             }
         };
 
+        moveStrategy = avoidStrategy;
     }
 
     public void run() {
-        moveStrategy = avoidStrategy;
-
         while (true) {
             moveStrategy.move();
         }
