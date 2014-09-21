@@ -86,8 +86,7 @@ public class YohanLee extends AdvancedRobot {
         }
     }
 
-    public void run() {
-        //        setAdjustGunForRobotTurn(true);
+    public YohanLee() {
         trackStrategy = new MoveStrategy() {
             @Override
             public void move() {
@@ -114,6 +113,9 @@ public class YohanLee extends AdvancedRobot {
             }
         };
 
+    }
+
+    public void run() {
         moveStrategy = avoidStrategy;
 
         while (true) {
