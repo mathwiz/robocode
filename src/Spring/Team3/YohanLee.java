@@ -12,6 +12,8 @@ public class YohanLee extends AdvancedRobot {
 
     public static final int CLOSE_DISTANCE = 100;
 
+    public static final int FAR_DISTANCE = 150;
+
     private MoveStrategy trackStrategy;
 
     private MoveStrategy trackScanStrategy;
@@ -170,13 +172,13 @@ public class YohanLee extends AdvancedRobot {
             }
             count = 0;
             // If our target is too far away, turn and move toward it.
-            if (e.getDistance() > 150) {
+            if (e.getDistance() > FAR_DISTANCE) {
                 gunTurnAmt = normalRelativeAngleDegrees(e.getBearing() + (getHeading() - getRadarHeading()));
 
                 setTurnGunRight(gunTurnAmt); // Try changing these to setTurnGunRight,
                 setTurnRight(e.getBearing()); // and see how much Tracker improves...
                 // (you'll have to make Tracker an AdvancedRobot)
-                setAhead(e.getDistance() - 140);
+                setAhead(e.getDistance() - (FAR_DISTANCE - 10));
                 return;
             }
 
