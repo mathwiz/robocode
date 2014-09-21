@@ -10,6 +10,8 @@ public class YohanLee extends AdvancedRobot {
 
     public static final int TURN_AMOUNT = 10;
 
+    private MoveStrategy ms;
+
     private String trackName;
 
     private int count;
@@ -76,23 +78,31 @@ public class YohanLee extends AdvancedRobot {
 
     public void run() {
         //        setAdjustGunForRobotTurn(true);
+        ms = new MoveStrategy() {
+            @Override
+            public void move() {
+                // turn the Gun (looks for enemy)
+                turnGunRight(gunTurnAmt);
+                // Keep track of how long we've been looking
+                count++;
+                log("Tracking %s count %d", trackName, count);
+                // If we've haven't seen our target for 2 turns, look left
+                if (count > 2) {
+                    gunTurnAmt = -1 * TURN_AMOUNT;
+                }
+                // If we still haven't seen our target for 5 turns, look right
+                if (count > 5) {
+                    gunTurnAmt = TURN_AMOUNT;
+                }
+                // If we *still* haven't seen our target after 10 turns, find another target
+                if (count > 11) {
+                    trackName = null;
+                }
+            }
+        };
+
         while (true) {
-            // turn the Gun (looks for enemy)
-            turnGunRight(gunTurnAmt);
-            // Keep track of how long we've been looking
-            count++;
-            // If we've haven't seen our target for 2 turns, look left
-            if (count > 2) {
-                gunTurnAmt = -1 * TURN_AMOUNT;
-            }
-            // If we still haven't seen our target for 5 turns, look right
-            if (count > 5) {
-                gunTurnAmt = TURN_AMOUNT;
-            }
-            // If we *still* haven't seen our target after 10 turns, find another target
-            if (count > 11) {
-                trackName = null;
-            }
+            ms.move();
         }
     }
 
@@ -213,4 +223,9 @@ public class YohanLee extends AdvancedRobot {
     public void onDeath(DeathEvent deathEvent) {
         log("Next time!");
     }
+
+    private interface MoveStrategy {
+        void move();
+    }
+
 }
