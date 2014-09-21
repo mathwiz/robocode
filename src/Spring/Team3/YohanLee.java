@@ -51,6 +51,8 @@ public class YohanLee extends AdvancedRobot {
                 return .5;
             }
             return .1;
+        } else if (distance > FAR_DISTANCE) {
+            return .5;
         }
         return 1;
     }
