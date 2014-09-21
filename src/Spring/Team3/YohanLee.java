@@ -10,6 +10,8 @@ public class YohanLee extends AdvancedRobot {
 
     public static final int TURN_AMOUNT = 10;
 
+    public static final int CLOSE_DISTANCE = 100;
+
     private MoveStrategy ms;
 
     private String trackName;
@@ -81,20 +83,14 @@ public class YohanLee extends AdvancedRobot {
         ms = new MoveStrategy() {
             @Override
             public void move() {
-                // turn the Gun (looks for enemy)
                 turnGunRight(gunTurnAmt);
-                // Keep track of how long we've been looking
                 count++;
-                log("Tracking %s count %d", trackName, count);
-                // If we've haven't seen our target for 2 turns, look left
                 if (count > 2) {
                     gunTurnAmt = -1 * TURN_AMOUNT;
                 }
-                // If we still haven't seen our target for 5 turns, look right
                 if (count > 5) {
                     gunTurnAmt = TURN_AMOUNT;
                 }
-                // If we *still* haven't seen our target after 10 turns, find another target
                 if (count > 11) {
                     trackName = null;
                 }
@@ -143,11 +139,9 @@ public class YohanLee extends AdvancedRobot {
 
     @Override
     public void onScannedRobot(ScannedRobotEvent e) {
-        double bearing = e.getBearing();
-        log("scanned %.2f", bearing);
         setBodyColor(Color.RED);
-        // If we have a target, and this isn't it, return immediately
-        // so we can get more ScannedRobotEvents.
+        double bearing = e.getBearing();
+        log("scanned %s at bearing %.2f", e.getName(), bearing);
         if (trackName != null && !e.getName().equals(trackName)) {
             return;
         }
@@ -155,7 +149,7 @@ public class YohanLee extends AdvancedRobot {
         // If we don't have a target, well, now we do!
         if (trackName == null) {
             trackName = e.getName();
-            out.println("Tracking " + trackName);
+            log("Tracking %S", trackName);
         }
         // This is our target.  Reset count (see the run method)
         count = 0;
@@ -176,11 +170,11 @@ public class YohanLee extends AdvancedRobot {
         fire(3);
 
         // Our target is too close!  Back up.
-        if (e.getDistance() < 100) {
+        if (e.getDistance() < CLOSE_DISTANCE) {
             if (e.getBearing() > -90 && e.getBearing() <= 90) {
-                back(40);
+                back(getEscapeDistance());
             } else {
-                ahead(40);
+                ahead(getEscapeDistance());
             }
         }
         scan();
