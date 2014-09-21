@@ -73,7 +73,7 @@ public class YohanLee extends AdvancedRobot {
     }
 
     public void run() {
-        setAdjustGunForRobotTurn(true);
+//        setAdjustGunForRobotTurn(true);
         while (true) {
             turnRight(5 * getTurnDirection());
         }
@@ -94,10 +94,10 @@ public class YohanLee extends AdvancedRobot {
     @Override
     public void onHitByBullet(HitByBulletEvent e) {
         log("bullet hit from %s", e.getName());
-        turnRight(getTurnSize());
-        ahead(getEscapeDistance());
-        flipEscapeDistance();
-        scan();
+//        turnRight(getTurnSize());
+//        ahead(getEscapeDistance());
+//        flipEscapeDistance();
+//        scan();
     }
 
     @Override
@@ -116,8 +116,8 @@ public class YohanLee extends AdvancedRobot {
             ahead(e.getDistance() + 5);
             scan();
         } else {
-            turnGunRight(getHeading() - getGunHeading() + e.getBearing());
-            fire(1);
+//            turnGunRight(getHeading() - getGunHeading() + e.getBearing());
+//            fire(1);
         }
     }
 
@@ -128,7 +128,7 @@ public class YohanLee extends AdvancedRobot {
 
     @Override
     public void onStatus(StatusEvent e) {
-        setTurnRadarRightRadians(Double.POSITIVE_INFINITY);
+//        setTurnRadarRightRadians(Double.POSITIVE_INFINITY);
     }
 
     @Override
