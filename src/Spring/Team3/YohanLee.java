@@ -120,11 +120,9 @@ public class YohanLee extends AdvancedRobot {
                     out.println("Tracking " + e.getName() + " due to collision");
                 }
                 trackName = e.getName();
-                // Back up a bit.
-                // Note:  We won't get scan events while we're doing this!
-                // An AdvancedRobot might use setBack(); execute();
+
                 gunTurnAmt = normalRelativeAngleDegrees(e.getBearing() + (getHeading() - getRadarHeading()));
-                fire(3);
+                fire(calculateFirePower(1.0));
                 setTurnGunRight(gunTurnAmt);
                 setBack(ESCAPE_DISTANCE);
             }
@@ -153,7 +151,8 @@ public class YohanLee extends AdvancedRobot {
 
             @Override
             public void onHitRobot(HitRobotEvent e) {
-                fire(3);
+                setFire(calculateFirePower(1.0));
+                setTurnGunRight(normalRelativeAngleDegrees(e.getBearing() + (getHeading() - getRadarHeading())));
                 if (movingForward) {
                     setBack(ESCAPE_DISTANCE);
                     movingForward = false;
@@ -166,7 +165,7 @@ public class YohanLee extends AdvancedRobot {
             @Override
             public void onHitByBullet(HitByBulletEvent e) {
                 setAhead(BIG_MOVE);
-                setTurnLeft(45);
+                setTurnLeft(normalRelativeAngleDegrees(e.getBearing()));
             }
         };
 
