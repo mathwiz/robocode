@@ -46,7 +46,7 @@ public class YohanLee extends AdvancedRobot {
         return Math.min(getBattleFieldHeight(), getBattleFieldWidth());
     }
 
-    private double calculateFirePower() {
+    private double calculateFirePower(double distance) {
         double e = getEnergy();
         if (e > 16) {
             return 3;
@@ -86,7 +86,7 @@ public class YohanLee extends AdvancedRobot {
         if (isDuel()) {
             flipDirection(bearing);
             turnRight(bearing);
-            fire(calculateFirePower());
+            fire(3);
             ahead(getAttackDistance());
         }
     }
@@ -117,7 +117,7 @@ public class YohanLee extends AdvancedRobot {
             scan();
         } else {
 //            turnGunRight(getHeading() - getGunHeading() + e.getBearing());
-//            fire(1);
+            fire(1);
         }
     }
 
