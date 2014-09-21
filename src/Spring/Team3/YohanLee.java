@@ -8,6 +8,8 @@ public class YohanLee extends AdvancedRobot {
 
     private int turns;
 
+    private double gunTurnAmt = 10;
+
     private int turnDirection = 1;
 
     private int escapeDistance = 50;
@@ -71,10 +73,9 @@ public class YohanLee extends AdvancedRobot {
     }
 
     public void run() {
-        //        setAdjustGunForRobotTurn(true);
+        setAdjustGunForRobotTurn(true);
         while (true) {
             turnRight(5 * getTurnDirection());
-            execute();
         }
     }
 
@@ -82,10 +83,12 @@ public class YohanLee extends AdvancedRobot {
     public void onHitRobot(HitRobotEvent e) {
         double bearing = e.getBearing();
         log("hit %s at bearing %.2f", e.getName(), bearing);
-        flipDirection(bearing);
-        turnRight(bearing);
-        fire(calculateFirePower());
-        ahead(getAttackDistance());
+        if (isDuel()) {
+            flipDirection(bearing);
+            turnRight(bearing);
+            fire(calculateFirePower());
+            ahead(getAttackDistance());
+        }
     }
 
     @Override
@@ -107,10 +110,15 @@ public class YohanLee extends AdvancedRobot {
     public void onScannedRobot(ScannedRobotEvent e) {
         double bearing = e.getBearing();
         log("scanned %.2f", bearing);
-        flipDirection(bearing);
-        turnRight(bearing);
-        ahead(e.getDistance() + 5);
-        scan();
+        if (isDuel()) {
+            flipDirection(bearing);
+            turnRight(bearing);
+            ahead(e.getDistance() + 5);
+            scan();
+        } else {
+            turnGunRight(getHeading() - getGunHeading() + e.getBearing());
+            fire(1);
+        }
     }
 
     @Override
