@@ -16,7 +16,7 @@ public class YohanLee extends AdvancedRobot {
 
     public static final int BIG_MOVE = 40000;
 
-    public static final int ESCAPE_DISTANCE = 60;
+    public static final int ESCAPE_DISTANCE = 150;
 
     private Strategy trackStrategy;
 
@@ -138,13 +138,10 @@ public class YohanLee extends AdvancedRobot {
             public void move() {
                 AdvancedRobot robot = YohanLee.this;
                 setAhead(BIG_MOVE);
+                setTurnGunRight(360);
                 movingForward = true;
                 setTurnRight(90);
                 waitFor(new TurnCompleteCondition(robot));
-                setTurnLeft(180);
-                waitFor(new TurnCompleteCondition(robot));
-//                setTurnRight(180);
-//                waitFor(new TurnCompleteCondition(robot));
             }
 
             @Override
