@@ -14,11 +14,11 @@ public class YohanLee extends AdvancedRobot {
 
     public static final int FAR_DISTANCE = 150;
 
-    private MoveStrategy trackStrategy;
+    private Strategy trackStrategy;
 
-    private MoveStrategy avoidStrategy;
+    private Strategy avoidStrategy;
 
-    private MoveStrategy moveStrategy;
+    private Strategy strategy;
 
     private String trackName;
 
@@ -87,7 +87,7 @@ public class YohanLee extends AdvancedRobot {
     }
 
     public YohanLee() {
-        trackStrategy = new MoveStrategy() {
+        trackStrategy = new Strategy() {
             @Override
             public void move() {
                 turnGunRight(gunTurnAmt);
@@ -102,44 +102,39 @@ public class YohanLee extends AdvancedRobot {
                     trackName = null;
                 }
             }
-        };
 
-        avoidStrategy = new MoveStrategy() {
             @Override
-            public void move() {
-                AdvancedRobot robot = YohanLee.this;
-                // Tell the game we will want to move ahead 40000 -- some large number
-                setAhead(40000);
-                movingForward = true;
-                // Tell the game we will want to turn right 90
-                setTurnRight(90);
-                // At this point, we have indicated to the game that *when we do something*,
-                // we will want to move ahead and turn right.  That's what "set" means.
-                // It is important to realize we have not done anything yet!
-                // In order to actually move, we'll want to call a method that
-                // takes real time, such as waitFor.
-                // waitFor actually starts the action -- we start moving and turning.
-                // It will not return until we have finished turning.
-                waitFor(new TurnCompleteCondition(robot));
-                // Note:  We are still moving ahead now, but the turn is complete.
-                // Now we'll turn the other way...
-                setTurnLeft(180);
-                // ... and wait for the turn to finish ...
-                waitFor(new TurnCompleteCondition(robot));
-                // ... then the other way ...
-                setTurnRight(180);
-                // .. and wait for that turn to finish.
-                waitFor(new TurnCompleteCondition(robot));
-                // then back to the top to do it all again
+            public void onScannedRobot(ScannedRobotEvent event) {
+
             }
         };
 
-        moveStrategy = avoidStrategy;
+        avoidStrategy = new Strategy() {
+            @Override
+            public void move() {
+                AdvancedRobot robot = YohanLee.this;
+                setAhead(40000);
+                movingForward = true;
+                setTurnRight(90);
+                waitFor(new TurnCompleteCondition(robot));
+                setTurnLeft(180);
+                waitFor(new TurnCompleteCondition(robot));
+                setTurnRight(180);
+                waitFor(new TurnCompleteCondition(robot));
+            }
+
+            @Override
+            public void onScannedRobot(ScannedRobotEvent event) {
+                fire(2);
+            }
+        };
+
+        strategy = avoidStrategy;
     }
 
     public void run() {
         while (true) {
-            moveStrategy.move();
+            strategy.move();
         }
     }
 
@@ -183,7 +178,7 @@ public class YohanLee extends AdvancedRobot {
         setBodyColor(Color.RED);
         double bearing = e.getBearing();
         log("scanned %s at bearing %.2f", e.getName(), bearing);
-        if (moveStrategy == trackStrategy) {
+        if (strategy == trackStrategy) {
             if (trackName != null && !e.getName().equals(trackName)) {
                 return;
             }
@@ -217,6 +212,8 @@ public class YohanLee extends AdvancedRobot {
                 }
             }
             scan();
+        } else {
+            strategy.onScannedRobot(e);
         }
 
     }
@@ -225,7 +222,7 @@ public class YohanLee extends AdvancedRobot {
     public void onRobotDeath(RobotDeathEvent robotDeathEvent) {
         log("%s died. %d remaining", robotDeathEvent.getName(), getOthers());
         if (isDuel()) {
-            moveStrategy = trackStrategy;
+            strategy = trackStrategy;
         }
     }
 
@@ -233,7 +230,7 @@ public class YohanLee extends AdvancedRobot {
     public void onStatus(StatusEvent e) {
         setBodyColor(Color.BLUE);
         if (isDuel()) {
-            moveStrategy = trackStrategy;
+            strategy = trackStrategy;
         }
     }
 
@@ -264,11 +261,8 @@ public class YohanLee extends AdvancedRobot {
         log("Next time!");
     }
 
-    private interface MoveStrategy {
+    private interface Strategy {
         void move();
-    }
-
-    private interface ScannedRobotListener {
-        void onScan(ScannedRobotEvent event);
+        void onScannedRobot(ScannedRobotEvent event);
     }
 }
