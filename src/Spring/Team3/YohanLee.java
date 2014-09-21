@@ -14,6 +14,10 @@ public class YohanLee extends AdvancedRobot {
 
     public static final int FAR_DISTANCE = 150;
 
+    public static final int BIG_MOVE = 40000;
+
+    public static final int ESCAPE_DISTANCE = 60;
+
     private Strategy trackStrategy;
 
     private Strategy avoidStrategy;
@@ -28,62 +32,29 @@ public class YohanLee extends AdvancedRobot {
 
     boolean movingForward;
 
-    private int turnDirection = 1;
-
-    private int escapeDistance = 50;
-
-    private int attackDistance = 40;
-
-    private int turnSize = 90;
-
     private void log(String s, Object... args) {
         out.println(String.format(s, args));
     }
 
-    private int getTurnDirection() {
-        return turnDirection;
-    }
-
-    private double getTurnSize() {
-        return turnSize;
-    }
-
-    public int getAttackDistance() {
-        return attackDistance;
-    }
-
-    public int getEscapeDistance() {
-        return escapeDistance;
-    }
-
-    private double moveSize() {
-        return Math.min(getBattleFieldHeight(), getBattleFieldWidth());
-    }
-
     private double calculateFirePower(double distance) {
         double e = getEnergy();
-        if (e > 16) {
-            return 3;
-        } else if (e > 10) {
-            return 2;
-        } else if (e > 4) {
-            return 1;
-        } else if (e > 2) {
-            return .5;
+        if (distance < CLOSE_DISTANCE) {
+            if (e > 16) {
+                return 3;
+            } else if (e > 10) {
+                return 2;
+            } else if (e > 4) {
+                return 1;
+            } else if (e > 2) {
+                return .5;
+            }
+            return .1;
         }
-        return .1;
+        return 1;
     }
 
     private boolean isDuel() {
         return getOthers() == 1;
-    }
-
-    private void flipDirection(double bearing) {
-        if (bearing >= 0) {
-            turnDirection = 1;
-        } else {
-            turnDirection = -1;
-        }
     }
 
     public YohanLee() {
@@ -104,8 +75,38 @@ public class YohanLee extends AdvancedRobot {
             }
 
             @Override
-            public void onScannedRobot(ScannedRobotEvent event) {
+            public void onScannedRobot(ScannedRobotEvent e) {
+                if (trackName != null && !e.getName().equals(trackName)) {
+                    return;
+                }
 
+                if (trackName == null) {
+                    trackName = e.getName();
+                    log("Tracking %S", trackName);
+                }
+                count = 0;
+
+                if (e.getDistance() > FAR_DISTANCE) {
+                    gunTurnAmt = normalRelativeAngleDegrees(e.getBearing() + (getHeading() - getRadarHeading()));
+
+                    setTurnGunRight(gunTurnAmt);
+                    setTurnRight(e.getBearing());
+                    setAhead(e.getDistance() - (FAR_DISTANCE - 10));
+                    return;
+                }
+
+                gunTurnAmt = normalRelativeAngleDegrees(e.getBearing() + (getHeading() - getRadarHeading()));
+                turnGunRight(gunTurnAmt);
+                fire(3);
+
+                if (e.getDistance() < CLOSE_DISTANCE) {
+                    if (e.getBearing() > -90 && e.getBearing() <= 90) {
+                        back(ESCAPE_DISTANCE);
+                    } else {
+                        ahead(ESCAPE_DISTANCE);
+                    }
+                }
+                scan();
             }
         };
 
@@ -113,7 +114,7 @@ public class YohanLee extends AdvancedRobot {
             @Override
             public void move() {
                 AdvancedRobot robot = YohanLee.this;
-                setAhead(40000);
+                setAhead(BIG_MOVE);
                 movingForward = true;
                 setTurnRight(90);
                 waitFor(new TurnCompleteCondition(robot));
@@ -124,8 +125,8 @@ public class YohanLee extends AdvancedRobot {
             }
 
             @Override
-            public void onScannedRobot(ScannedRobotEvent event) {
-                fire(2);
+            public void onScannedRobot(ScannedRobotEvent e) {
+                fire(calculateFirePower(e.getDistance()));
             }
         };
 
@@ -154,7 +155,7 @@ public class YohanLee extends AdvancedRobot {
         gunTurnAmt = normalRelativeAngleDegrees(e.getBearing() + (getHeading() - getRadarHeading()));
         turnGunRight(gunTurnAmt);
         fire(3);
-        back(getEscapeDistance());
+        back(ESCAPE_DISTANCE);
     }
 
     @Override
@@ -169,53 +170,13 @@ public class YohanLee extends AdvancedRobot {
     @Override
     public void onHitWall(HitWallEvent e) {
         log("hit wall at (%.2f, %.2f)", getX(), getY());
-        //turnRight(normalRelativeAngleDegrees(90 - getHeading()));
-        setAhead(-1 * getEscapeDistance());
+        setAhead(-1 * ESCAPE_DISTANCE);
     }
 
     @Override
     public void onScannedRobot(ScannedRobotEvent e) {
         setBodyColor(Color.RED);
-        double bearing = e.getBearing();
-        log("scanned %s at bearing %.2f", e.getName(), bearing);
-        if (strategy == trackStrategy) {
-            if (trackName != null && !e.getName().equals(trackName)) {
-                return;
-            }
-
-            if (trackName == null) {
-                trackName = e.getName();
-                log("Tracking %S", trackName);
-            }
-            count = 0;
-            // If our target is too far away, turn and move toward it.
-            if (e.getDistance() > FAR_DISTANCE) {
-                gunTurnAmt = normalRelativeAngleDegrees(e.getBearing() + (getHeading() - getRadarHeading()));
-
-                setTurnGunRight(gunTurnAmt); // Try changing these to setTurnGunRight,
-                setTurnRight(e.getBearing()); // and see how much Tracker improves...
-                // (you'll have to make Tracker an AdvancedRobot)
-                setAhead(e.getDistance() - (FAR_DISTANCE - 10));
-                return;
-            }
-
-            // Our target is close.
-            gunTurnAmt = normalRelativeAngleDegrees(e.getBearing() + (getHeading() - getRadarHeading()));
-            turnGunRight(gunTurnAmt);
-            fire(3);
-
-            if (e.getDistance() < CLOSE_DISTANCE) {
-                if (e.getBearing() > -90 && e.getBearing() <= 90) {
-                    back(getEscapeDistance());
-                } else {
-                    ahead(getEscapeDistance());
-                }
-            }
-            scan();
-        } else {
-            strategy.onScannedRobot(e);
-        }
-
+        strategy.onScannedRobot(e);
     }
 
     @Override
@@ -247,8 +208,8 @@ public class YohanLee extends AdvancedRobot {
     @Override
     public void onBulletHitBullet(BulletHitBulletEvent e) {
         log("bullet hit bullet. wtf?");
-        turnRight(getTurnDirection() * getTurnSize());
-        ahead(getEscapeDistance());
+        turnRight(90);
+        ahead(ESCAPE_DISTANCE);
     }
 
     @Override
@@ -263,6 +224,7 @@ public class YohanLee extends AdvancedRobot {
 
     private interface Strategy {
         void move();
+
         void onScannedRobot(ScannedRobotEvent event);
     }
 }
