@@ -4,7 +4,7 @@ import robocode.*;
 
 import java.awt.*;
 
-import static robocode.util.Utils.*;
+import static robocode.util.Utils.normalRelativeAngleDegrees;
 
 public class YohanLee extends AdvancedRobot {
 
@@ -86,7 +86,7 @@ public class YohanLee extends AdvancedRobot {
 
                 if (trackName == null) {
                     trackName = e.getName();
-                    log("Tracking %S", trackName);
+                    log("Tracking %s", trackName);
                 }
                 count = 0;
 
