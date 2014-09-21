@@ -113,7 +113,6 @@ public class YohanLee extends AdvancedRobot {
             @Override
             public void onHitRobot(HitRobotEvent e) {
                 double bearing = e.getBearing();
-                log("hit %s at bearing %.2f", e.getName(), bearing);
                 // Only print if he's not already our target.
                 if (trackName != null && !trackName.equals(e.getName())) {
                     out.println("Tracking " + e.getName() + " due to collision");
@@ -127,6 +126,11 @@ public class YohanLee extends AdvancedRobot {
                 setTurnGunRight(gunTurnAmt);
                 setBack(ESCAPE_DISTANCE);
             }
+
+            @Override
+            public void onHitByBullet(HitByBulletEvent e) {
+
+            }
         };
 
         avoidStrategy = new Strategy() {
@@ -139,8 +143,8 @@ public class YohanLee extends AdvancedRobot {
                 waitFor(new TurnCompleteCondition(robot));
                 setTurnLeft(180);
                 waitFor(new TurnCompleteCondition(robot));
-                setTurnRight(180);
-                waitFor(new TurnCompleteCondition(robot));
+//                setTurnRight(180);
+//                waitFor(new TurnCompleteCondition(robot));
             }
 
             @Override
@@ -152,12 +156,18 @@ public class YohanLee extends AdvancedRobot {
             public void onHitRobot(HitRobotEvent e) {
                 fire(3);
                 if (movingForward) {
-                    setBack(BIG_MOVE);
+                    setBack(ESCAPE_DISTANCE);
                     movingForward = false;
                 } else {
-                    setAhead(BIG_MOVE);
+                    setAhead(ESCAPE_DISTANCE);
                     movingForward = true;
                 }
+            }
+
+            @Override
+            public void onHitByBullet(HitByBulletEvent e) {
+                setAhead(BIG_MOVE);
+                setTurnLeft(45);
             }
         };
 
@@ -172,17 +182,14 @@ public class YohanLee extends AdvancedRobot {
 
     @Override
     public void onHitRobot(HitRobotEvent e) {
-        log("hit robot %s", e.getName());
+        log("hit robot %s at bearing %.2f", e.getName(), e.getBearing());
         strategy.onHitRobot(e);
     }
 
     @Override
     public void onHitByBullet(HitByBulletEvent e) {
         log("bullet hit from %s", e.getName());
-        //        turnRight(getTurnSize());
-        //        ahead(getEscapeDistance());
-        //        flipEscapeDistance();
-        //        scan();
+        strategy.onHitByBullet(e);
     }
 
     @Override
@@ -227,8 +234,6 @@ public class YohanLee extends AdvancedRobot {
     @Override
     public void onBulletHitBullet(BulletHitBulletEvent e) {
         log("bullet hit bullet. wtf?");
-        turnRight(90);
-        ahead(ESCAPE_DISTANCE);
     }
 
     @Override
@@ -247,5 +252,7 @@ public class YohanLee extends AdvancedRobot {
         void onScannedRobot(ScannedRobotEvent e);
 
         void onHitRobot(HitRobotEvent e);
+
+        void onHitByBullet(HitByBulletEvent e);
     }
 }
