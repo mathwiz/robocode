@@ -12,7 +12,13 @@ public class YohanLee extends AdvancedRobot {
 
     public static final int CLOSE_DISTANCE = 100;
 
-    private MoveStrategy ms;
+    private MoveStrategy trackStrategy;
+
+    private MoveStrategy trackScanStrategy;
+
+    private MoveStrategy avoidStrategy;
+
+    private MoveStrategy moveStrategy;
 
     private String trackName;
 
@@ -80,7 +86,7 @@ public class YohanLee extends AdvancedRobot {
 
     public void run() {
         //        setAdjustGunForRobotTurn(true);
-        ms = new MoveStrategy() {
+        trackStrategy = new MoveStrategy() {
             @Override
             public void move() {
                 turnGunRight(gunTurnAmt);
@@ -97,8 +103,19 @@ public class YohanLee extends AdvancedRobot {
             }
         };
 
+        avoidStrategy = new MoveStrategy() {
+            @Override
+            public void move() {
+                setTurnRight(10000);
+                setMaxVelocity(5);
+                ahead(10000);
+            }
+        };
+
+        moveStrategy = avoidStrategy;
+
         while (true) {
-            ms.move();
+            moveStrategy.move();
         }
     }
 
@@ -133,8 +150,8 @@ public class YohanLee extends AdvancedRobot {
     @Override
     public void onHitWall(HitWallEvent e) {
         log("hit wall at (%.2f, %.2f)", getX(), getY());
-        turnRight(normalRelativeAngleDegrees(90 - getHeading()));
-        ahead(moveSize());
+        //turnRight(normalRelativeAngleDegrees(90 - getHeading()));
+        setAhead(-1 * getEscapeDistance());
     }
 
     @Override
@@ -142,53 +159,58 @@ public class YohanLee extends AdvancedRobot {
         setBodyColor(Color.RED);
         double bearing = e.getBearing();
         log("scanned %s at bearing %.2f", e.getName(), bearing);
-        if (trackName != null && !e.getName().equals(trackName)) {
-            return;
-        }
-
-        // If we don't have a target, well, now we do!
-        if (trackName == null) {
-            trackName = e.getName();
-            log("Tracking %S", trackName);
-        }
-        // This is our target.  Reset count (see the run method)
-        count = 0;
-        // If our target is too far away, turn and move toward it.
-        if (e.getDistance() > 150) {
-            gunTurnAmt = normalRelativeAngleDegrees(e.getBearing() + (getHeading() - getRadarHeading()));
-
-            turnGunRight(gunTurnAmt); // Try changing these to setTurnGunRight,
-            turnRight(e.getBearing()); // and see how much Tracker improves...
-            // (you'll have to make Tracker an AdvancedRobot)
-            ahead(e.getDistance() - 140);
-            return;
-        }
-
-        // Our target is close.
-        gunTurnAmt = normalRelativeAngleDegrees(e.getBearing() + (getHeading() - getRadarHeading()));
-        turnGunRight(gunTurnAmt);
-        fire(3);
-
-        // Our target is too close!  Back up.
-        if (e.getDistance() < CLOSE_DISTANCE) {
-            if (e.getBearing() > -90 && e.getBearing() <= 90) {
-                back(getEscapeDistance());
-            } else {
-                ahead(getEscapeDistance());
+        if (moveStrategy == trackStrategy) {
+            if (trackName != null && !e.getName().equals(trackName)) {
+                return;
             }
+
+            if (trackName == null) {
+                trackName = e.getName();
+                log("Tracking %S", trackName);
+            }
+            count = 0;
+            // If our target is too far away, turn and move toward it.
+            if (e.getDistance() > 150) {
+                gunTurnAmt = normalRelativeAngleDegrees(e.getBearing() + (getHeading() - getRadarHeading()));
+
+                turnGunRight(gunTurnAmt); // Try changing these to setTurnGunRight,
+                turnRight(e.getBearing()); // and see how much Tracker improves...
+                // (you'll have to make Tracker an AdvancedRobot)
+                ahead(e.getDistance() - 140);
+                return;
+            }
+
+            // Our target is close.
+            gunTurnAmt = normalRelativeAngleDegrees(e.getBearing() + (getHeading() - getRadarHeading()));
+            turnGunRight(gunTurnAmt);
+            fire(3);
+
+            if (e.getDistance() < CLOSE_DISTANCE) {
+                if (e.getBearing() > -90 && e.getBearing() <= 90) {
+                    back(getEscapeDistance());
+                } else {
+                    ahead(getEscapeDistance());
+                }
+            }
+            scan();
         }
-        scan();
+
     }
 
     @Override
     public void onRobotDeath(RobotDeathEvent robotDeathEvent) {
         log("%s died. %d remaining", robotDeathEvent.getName(), getOthers());
+        if (isDuel()) {
+            moveStrategy = trackStrategy;
+        }
     }
 
     @Override
     public void onStatus(StatusEvent e) {
         setBodyColor(Color.BLUE);
-        //        setTurnRadarRightRadians(Double.POSITIVE_INFINITY);
+        if (isDuel()) {
+            moveStrategy = trackStrategy;
+        }
     }
 
     @Override
@@ -222,4 +244,7 @@ public class YohanLee extends AdvancedRobot {
         void move();
     }
 
+    private interface ScannedRobotListener {
+        void onScan(ScannedRobotEvent event);
+    }
 }
