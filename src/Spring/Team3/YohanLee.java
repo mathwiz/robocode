@@ -129,7 +129,6 @@ public class YohanLee extends AdvancedRobot {
 
             @Override
             public void onHitByBullet(HitByBulletEvent e) {
-
             }
         };
 
@@ -164,8 +163,6 @@ public class YohanLee extends AdvancedRobot {
 
             @Override
             public void onHitByBullet(HitByBulletEvent e) {
-                setAhead(BIG_MOVE);
-                setTurnLeft(normalRelativeAngleDegrees(e.getBearing()));
             }
         };
 
@@ -212,7 +209,7 @@ public class YohanLee extends AdvancedRobot {
     @Override
     public void onStatus(StatusEvent e) {
         setBodyColor(Color.BLUE);
-        if (isDuel() || getEnergy() < 50) {
+        if (isDuel()) {
             strategy = trackStrategy;
         }
     }
