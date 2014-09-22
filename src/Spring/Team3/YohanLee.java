@@ -125,7 +125,7 @@ public class YohanLee extends AdvancedRobot {
                 trackName = e.getName();
 
                 gunTurnAmt = normalRelativeAngleDegrees(e.getBearing() + (getHeading() - getRadarHeading()));
-                setFire(calculateFirePower(1.0));
+                setFire(3);
                 setTurnGunRight(gunTurnAmt);
                 setBack(ESCAPE_DISTANCE);
             }
