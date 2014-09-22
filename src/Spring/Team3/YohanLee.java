@@ -34,6 +34,8 @@ public class YohanLee extends AdvancedRobot {
 
     boolean movingForward;
 
+    private double lastScanBearing;
+
     private void log(String s, Object... args) {
         out.println(String.format(s, args));
     }
@@ -90,6 +92,10 @@ public class YohanLee extends AdvancedRobot {
                 }
                 count = 0;
 
+                if (Math.abs(lastScanBearing - e.getBearing()) < .01) {
+                    setFire(3);
+                }
+
                 if (e.getDistance() > FAR_DISTANCE) {
                     gunTurnAmt = normalRelativeAngleDegrees(e.getBearing() + (getHeading() - getRadarHeading()));
                     setTurnGunRight(gunTurnAmt);
@@ -143,13 +149,28 @@ public class YohanLee extends AdvancedRobot {
 
             @Override
             public void onScannedRobot(ScannedRobotEvent e) {
-                fire(calculateFirePower(e.getDistance()));
+                double absoluteBearing = getHeading() + e.getBearing();
+                double bearingFromGun = normalRelativeAngleDegrees(absoluteBearing - getGunHeading());
+                if (Math.abs(bearingFromGun) <= 3) {
+                    turnGunRight(bearingFromGun);
+                    if (getGunHeat() == 0) {
+                        fire(calculateFirePower(e.getDistance()));
+                    }
+                }
+                else {
+                    turnGunRight(bearingFromGun);
+                }
+                if (bearingFromGun == 0) {
+                    scan();
+                }
             }
 
             @Override
             public void onHitRobot(HitRobotEvent e) {
-                setFire(calculateFirePower(1.0));
-                setTurnGunRight(normalRelativeAngleDegrees(e.getBearing() + (getHeading() - getRadarHeading())));
+                turnGunRight(normalRelativeAngleDegrees(e.getBearing() + (getHeading() - getGunHeading())));
+                if (getGunHeat() == 0) {
+                    fire(3);
+                }
                 if (movingForward) {
                     setBack(ESCAPE_DISTANCE);
                     movingForward = false;
@@ -161,6 +182,7 @@ public class YohanLee extends AdvancedRobot {
 
             @Override
             public void onHitByBullet(HitByBulletEvent e) {
+                this.move();
             }
         };
 
@@ -192,8 +214,10 @@ public class YohanLee extends AdvancedRobot {
 
     @Override
     public void onScannedRobot(ScannedRobotEvent e) {
+        log("Scanned %s at bearing %.2f", e.getName(), e.getBearing());
         setBodyColor(Color.RED);
         strategy.onScannedRobot(e);
+        lastScanBearing = e.getBearing();
     }
 
     @Override
