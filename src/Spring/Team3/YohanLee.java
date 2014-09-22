@@ -8,15 +8,15 @@ import static robocode.util.Utils.normalRelativeAngleDegrees;
 
 public class YohanLee extends AdvancedRobot {
 
-    public static final int TURN_AMOUNT = 10;
+    public static final double TURN_AMOUNT = 10;
 
-    public static final int CLOSE_DISTANCE = 100;
+    public static final double CLOSE_DISTANCE = 100;
 
-    public static final int FAR_DISTANCE = 150;
+    public static final double FAR_DISTANCE = CLOSE_DISTANCE * 1.5;
 
-    public static final int BIG_MOVE = 40000;
+    public static final double BIG_MOVE = 40000;
 
-    public static final int ESCAPE_DISTANCE = 150;
+    public static final double ESCAPE_DISTANCE = CLOSE_DISTANCE * 0.8;
 
     private Strategy trackStrategy;
 
@@ -51,7 +51,7 @@ public class YohanLee extends AdvancedRobot {
                 return .5;
             }
             return .1;
-        } else if (distance > FAR_DISTANCE) {
+        } else if (distance > getBattleFieldWidth() / 2.0) {
             return .5;
         }
         return 1;
@@ -99,14 +99,14 @@ public class YohanLee extends AdvancedRobot {
                 }
 
                 gunTurnAmt = normalRelativeAngleDegrees(e.getBearing() + (getHeading() - getRadarHeading()));
-                turnGunRight(gunTurnAmt);
-                fire(3);
+                setTurnGunRight(gunTurnAmt);
+                setFire(3);
 
                 if (e.getDistance() < CLOSE_DISTANCE) {
                     if (e.getBearing() > -90 && e.getBearing() <= 90) {
-                        back(ESCAPE_DISTANCE);
+                        setBack(ESCAPE_DISTANCE);
                     } else {
-                        ahead(ESCAPE_DISTANCE);
+                        setAhead(ESCAPE_DISTANCE);
                     }
                 }
                 scan();
@@ -114,15 +114,13 @@ public class YohanLee extends AdvancedRobot {
 
             @Override
             public void onHitRobot(HitRobotEvent e) {
-                double bearing = e.getBearing();
-                // Only print if he's not already our target.
                 if (trackName != null && !trackName.equals(e.getName())) {
                     out.println("Tracking " + e.getName() + " due to collision");
                 }
                 trackName = e.getName();
 
                 gunTurnAmt = normalRelativeAngleDegrees(e.getBearing() + (getHeading() - getRadarHeading()));
-                fire(calculateFirePower(1.0));
+                setFire(calculateFirePower(1.0));
                 setTurnGunRight(gunTurnAmt);
                 setBack(ESCAPE_DISTANCE);
             }
