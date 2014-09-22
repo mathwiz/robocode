@@ -212,7 +212,7 @@ public class YohanLee extends AdvancedRobot {
     @Override
     public void onStatus(StatusEvent e) {
         setBodyColor(Color.BLUE);
-        if (isDuel()) {
+        if (isDuel() || getEnergy() < 50) {
             strategy = trackStrategy;
         }
     }
