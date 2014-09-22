@@ -92,21 +92,20 @@ public class YohanLee extends AdvancedRobot {
                 }
                 count = 0;
 
+                gunTurnAmt = normalRelativeAngleDegrees(e.getBearing() + (getHeading() - getRadarHeading()));
+                setTurnGunRight(gunTurnAmt);
+
                 if (Math.abs(lastScanBearing - e.getBearing()) < .01) {
                     setFire(3);
                 }
 
                 if (e.getDistance() > FAR_DISTANCE) {
-                    gunTurnAmt = normalRelativeAngleDegrees(e.getBearing() + (getHeading() - getRadarHeading()));
-                    setTurnGunRight(gunTurnAmt);
                     setTurnRight(e.getBearing());
                     setAhead(e.getDistance() - (FAR_DISTANCE - 10));
                     return;
+                } else {
+                    setFire(3);
                 }
-
-                gunTurnAmt = normalRelativeAngleDegrees(e.getBearing() + (getHeading() - getRadarHeading()));
-                setTurnGunRight(gunTurnAmt);
-                setFire(3);
 
                 if (e.getDistance() < CLOSE_DISTANCE) {
                     if (e.getBearing() > -90 && e.getBearing() <= 90) {
