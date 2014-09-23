@@ -64,12 +64,17 @@ public class YohanLee extends AdvancedRobot {
         return getOthers() == 1;
     }
 
+    private Strategy switchStrategy() {
+        count = 0;
+        return strategy == trackStrategy ? avoidStrategy : trackStrategy;
+    }
+
     public YohanLee() {
         trackStrategy = new Strategy() {
             @Override
             public void move() {
-                turnGunRight(gunTurnAmt);
                 count++;
+                turnGunRight(gunTurnAmt);
                 if (count > 2) {
                     gunTurnAmt = -1 * TURN_AMOUNT;
                 }
@@ -140,6 +145,7 @@ public class YohanLee extends AdvancedRobot {
             @Override
             public void move() {
                 AdvancedRobot robot = YohanLee.this;
+                count++;
                 setAhead(BIG_MOVE);
                 movingForward = true;
                 setTurnGunRight(360);
@@ -153,6 +159,7 @@ public class YohanLee extends AdvancedRobot {
 
             @Override
             public void onScannedRobot(ScannedRobotEvent e) {
+                count = 0;
                 double absoluteBearing = getHeading() + e.getBearing();
                 double bearingFromGun = normalRelativeAngleDegrees(absoluteBearing - getGunHeading());
                 if (Math.abs(bearingFromGun) <= 3) {
@@ -240,8 +247,8 @@ public class YohanLee extends AdvancedRobot {
     @Override
     public void onStatus(StatusEvent e) {
         setBodyColor(Color.BLUE);
-        if (isDuel()) {
-            strategy = trackStrategy;
+        if (isDuel() || count > 32) {
+            strategy = switchStrategy();
         }
     }
 
@@ -253,9 +260,12 @@ public class YohanLee extends AdvancedRobot {
 
     @Override
     public void onBulletMissed(BulletMissedEvent e) {
-        missCount++;
+        if (missCount++ > 10) {
+            strategy = switchStrategy();
+        }
         log("bullet missed. %d misses", missCount);
     }
+
 
     @Override
     public void onBulletHitBullet(BulletHitBulletEvent e) {
