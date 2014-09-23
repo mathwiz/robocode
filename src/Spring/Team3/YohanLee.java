@@ -32,9 +32,10 @@ public class YohanLee extends AdvancedRobot {
 
     private double gunTurnAmt = 10;
 
-    boolean movingForward;
+    private boolean movingForward;
 
     private double lastScanBearing;
+
 
     private void log(String s, Object... args) {
         out.println(String.format(s, args));
@@ -53,7 +54,7 @@ public class YohanLee extends AdvancedRobot {
                 return .5;
             }
             return .1;
-        } else if (distance > getBattleFieldWidth() / 2.0) {
+        } else if (distance > getBattleFieldWidth() / 1.5) {
             return .5;
         }
         return 1;
@@ -144,6 +145,10 @@ public class YohanLee extends AdvancedRobot {
                 setTurnGunRight(360);
                 setTurnRight(90);
                 waitFor(new TurnCompleteCondition(robot));
+                setTurnLeft(180);
+                waitFor(new TurnCompleteCondition(robot));
+                setTurnRight(180);
+                waitFor(new TurnCompleteCondition(robot));
             }
 
             @Override
@@ -196,7 +201,9 @@ public class YohanLee extends AdvancedRobot {
     @Override
     public void onHitRobot(HitRobotEvent e) {
         log("hit robot %s at bearing %.2f", e.getName(), e.getBearing());
-        strategy.onHitRobot(e);
+        if (!e.getName().startsWith("Spring.Team3")) {
+            strategy.onHitRobot(e);
+        }
     }
 
     @Override
@@ -207,15 +214,19 @@ public class YohanLee extends AdvancedRobot {
 
     @Override
     public void onHitWall(HitWallEvent e) {
-        setAhead(-1 * ESCAPE_DISTANCE);
+        setAhead(-1 * Math.max(ESCAPE_DISTANCE, getBattleFieldWidth() / 4.0));
     }
 
     @Override
     public void onScannedRobot(ScannedRobotEvent e) {
         log("Scanned %s at bearing %.2f", e.getName(), e.getBearing());
-        setBodyColor(Color.RED);
-        strategy.onScannedRobot(e);
-        lastScanBearing = e.getBearing();
+        if (!e.getName().startsWith("Spring.Team3")) {
+            setBodyColor(Color.RED);
+            strategy.onScannedRobot(e);
+            lastScanBearing = e.getBearing();
+        } else {
+            scan();
+        }
     }
 
     @Override
