@@ -155,8 +155,7 @@ public class YohanLee extends AdvancedRobot {
                     if (getGunHeat() == 0) {
                         fire(calculateFirePower(e.getDistance()));
                     }
-                }
-                else {
+                } else {
                     turnGunRight(bearingFromGun);
                 }
                 if (bearingFromGun == 0) {
