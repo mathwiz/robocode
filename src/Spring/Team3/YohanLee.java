@@ -247,7 +247,9 @@ public class YohanLee extends AdvancedRobot {
     @Override
     public void onStatus(StatusEvent e) {
         setBodyColor(Color.BLUE);
-        if (isDuel() || count > 32) {
+        if (isDuel()) {
+            strategy = trackStrategy;
+        } else if (count > 50) {
             strategy = switchStrategy();
         }
     }
@@ -260,7 +262,7 @@ public class YohanLee extends AdvancedRobot {
 
     @Override
     public void onBulletMissed(BulletMissedEvent e) {
-        if (missCount++ > 10) {
+        if (missCount++ > 15) {
             strategy = switchStrategy();
         }
         log("bullet missed. %d misses", missCount);
